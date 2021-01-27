@@ -5,7 +5,7 @@ from __future__ import print_function
 import argparse
 import sys
 import copy
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from sklearn.cluster import KMeans
 
 import numpy as np
@@ -151,7 +151,7 @@ def train():
   val_data_num=300;
   #tr_data_num=1000000;
   #val_data_num=200000;
-  total_idx=range(len(total_data));np.random.shuffle(total_idx);
+  total_idx=list(range(len(total_data)));np.random.shuffle(total_idx);
   mixed_data=total_data[total_idx];
   mixed_label=total_label[total_idx];
   # Training/Validation/Test
@@ -211,7 +211,7 @@ def train():
       batch_label=train_label[j*mini_batch_num:(j+1)*mini_batch_num];
       tr_loss_part,_=sess.run([mse,trainer],feed_dict={O:batch_data,Rr:Rr_data,Rs:Rs_data,Ra:Ra_data,P_label:batch_label,X:X_data});
       tr_loss+=tr_loss_part;
-    train_idx=range(len(train_data));np.random.shuffle(train_idx);
+    train_idx=list(range(len(train_data)));np.random.shuffle(train_idx);
     train_data=train_data[train_idx];
     train_label=train_label[train_idx];
     val_loss=0;
@@ -224,7 +224,7 @@ def train():
       #else:
       val_loss_part,estimated=sess.run([mse,P],feed_dict={O:batch_data,Rr:Rr_data,Rs:Rs_data,Ra:Ra_data,P_label:batch_label,X:X_data});
       val_loss+=val_loss_part;
-    val_idx=range(len(val_data));np.random.shuffle(val_idx);
+    val_idx=list(range(len(val_data)));np.random.shuffle(val_idx);
     val_data=val_data[val_idx];
     val_label=val_label[val_idx];
     print("Epoch "+str(i+1)+" Training MSE: "+str(tr_loss/(int(len(train_data)/mini_batch_num)))+" Validation MSE: "+str(val_loss/(j+1)));
@@ -283,4 +283,5 @@ if __name__ == '__main__':
   parser.add_argument('--Da', type=int, default=1,
                       help='The Abstract Modeling Output Dimension')
   FLAGS, unparsed = parser.parse_known_args()
+  tf.disable_eager_execution()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
